@@ -1,0 +1,7 @@
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Environment & credentials
+.env
+config.local.php
