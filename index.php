@@ -37,17 +37,17 @@ $hasApiKey = !empty(GEMINI_API_KEY);
 
       <!-- ステップ進行バー (スライド P.9 準拠) -->
       <div class="steps-bar">
-        <div class="step-item active">
+        <div class="step-item active" id="stepIndicator1">
           <div class="step-circle">1</div>
-          <span>写真選択</span>
+          <span>写真・状態入力</span>
         </div>
         <div class="step-line"></div>
-        <div class="step-item active">
+        <div class="step-item" id="stepIndicator2">
           <div class="step-circle">2</div>
           <span>AI分析</span>
         </div>
         <div class="step-line"></div>
-        <div class="step-item">
+        <div class="step-item" id="stepIndicator3">
           <div class="step-circle">3</div>
           <span>出品確認</span>
         </div>
@@ -72,11 +72,49 @@ $hasApiKey = !empty(GEMINI_API_KEY);
         </div>
       </div>
 
-      <!-- 写真プレビュー表示 -->
+      <!-- 写真プレビュー & 商品状態入力表示 -->
       <div class="preview-container" id="previewContainer">
-        <div class="preview-image-wrapper">
-          <img src="" alt="商品写真プレビュー" id="previewImg" class="preview-img">
-          <button type="button" class="btn-reselect" id="btnReselect" title="写真を変更">×</button>
+        <div class="preview-layout">
+          <div class="preview-image-side">
+            <div class="preview-image-wrapper">
+              <img src="" alt="商品写真プレビュー" id="previewImg" class="preview-img">
+              <button type="button" class="btn-reselect" id="btnReselect" title="写真を変更">×</button>
+            </div>
+            <button type="button" class="btn-change-photo" id="btnChangePhoto">別の写真に変更</button>
+          </div>
+
+          <div class="preview-condition-side">
+            <div class="condition-input-header">
+              <span class="condition-badge-step">必須 / 推奨</span>
+              <label for="userConditionInput" class="condition-input-title">商品の状態・補足メモを記入</label>
+            </div>
+            <p class="condition-input-desc">
+              写真だけでは伝わらない動作状況、使用期間、傷・汚れ、付属品などを記入してください。AIが反映してより正確な相場と魅力的な説明文を生成します。
+            </p>
+
+            <!-- クイック入力チップ -->
+            <div class="quick-condition-chips">
+              <span class="quick-chip-label">ワンタップ挿入:</span>
+              <button type="button" class="chip-btn" data-insert="動作確認済みです。">動作確認済み</button>
+              <button type="button" class="chip-btn" data-insert="目立った傷や汚れはありません。">目立つ傷なし</button>
+              <button type="button" class="chip-btn" data-insert="細かな擦り傷・使用感があります。">やや傷・スレあり</button>
+              <button type="button" class="chip-btn" data-insert="外箱・付属品すべて揃っています。">箱・付属品あり</button>
+              <button type="button" class="chip-btn" data-insert="半年ほど使用しました。">半年ほど使用</button>
+              <button type="button" class="chip-btn" data-insert="本体のみの出品です。">本体のみ</button>
+            </div>
+
+            <textarea 
+              id="userConditionInput" 
+              class="condition-textarea" 
+              rows="3" 
+              placeholder="例: 半年ほど室内で使用。動作確認済みで問題ありませんが、背面に薄いスレ傷があります。外箱・説明書が付属します。"
+            ></textarea>
+
+            <button type="button" class="btn-start-ai" id="btnStartAi">
+              <span>✨</span>
+              <span>この内容でAI分析・出品情報を生成する</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

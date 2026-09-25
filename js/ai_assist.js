@@ -39,7 +39,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalOverlay = document.getElementById("modalOverlay");
   const btnModalClose = document.getElementById("btnModalClose");
 
+  const stepIndicator1 = document.getElementById("stepIndicator1");
+  const stepIndicator2 = document.getElementById("stepIndicator2");
+  const stepIndicator3 = document.getElementById("stepIndicator3");
+
+  const userConditionInput = document.getElementById("userConditionInput");
+  const btnStartAi = document.getElementById("btnStartAi");
+  const btnChangePhoto = document.getElementById("btnChangePhoto");
+
   const COMMISSION_RATE = 0.05; // 企画書 P.12: 販売手数料5%
+
+  // 選択中の画像ファイル・Blob
+  let currentSelectedFile = null;
 
   // 1. ドラッグ＆ドロップイベント
   ["dragenter", "dragover"].forEach((eventName) => {
@@ -79,38 +90,88 @@ document.addEventListener("DOMContentLoaded", () => {
     fileInput.click();
   });
 
+  if (btnChangePhoto) {
+    btnChangePhoto.addEventListener("click", (e) => {
+      e.stopPropagation();
+      fileInput.value = "";
+      fileInput.click();
+    });
+  }
+
+  // クイック入力チップのクリックイベント
+  document.querySelectorAll(".chip-btn").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const insertText = chip.getAttribute("data-insert");
+      if (!insertText) return;
+      const current = userConditionInput.value.trim();
+      if (current) {
+        userConditionInput.value = current + " " + insertText;
+      } else {
+        userConditionInput.value = insertText;
+      }
+      userConditionInput.focus();
+    });
+  });
+
   // 2. サンプル画像テストボタンのハンドラ (1クリックで体験可能)
+  const sampleConditions = {
+    "ワイヤレスコントローラー": "半年ほど使用。スティック・ボタン動作確認済み。目立つ傷はなく美品です。外箱あり。",
+    "ゲーミングヘッドセット": "数回のみ使用のほぼ新品。マイク・有線接続ともに動作良好です。付属品すべて揃っています。",
+    "ノートPC": "1年ほど室内で使用。動作確認済み、初期化済みです。天板に薄いスレ傷あり。充電器付属。"
+  };
+
   document.querySelectorAll(".sample-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const type = btn.getAttribute("data-sample");
       createSampleImageBlob(type).then((blob) => {
-        handleImageSelected(blob, type);
+        handleImageSelected(blob, sampleConditions[type] || "");
       });
     });
   });
 
-  // 3. 画像選択時の処理
-  function handleImageSelected(fileOrBlob, sampleType = "") {
-    // プレビュー表示
+  // 3. 画像選択時の処理（自動送信せず、プレビューと状態入力欄を表示）
+  function handleImageSelected(fileOrBlob, initialConditionText = "") {
+    currentSelectedFile = fileOrBlob;
+
     const reader = new FileReader();
     reader.onload = (e) => {
       previewImg.src = e.target.result;
       previewContainer.style.display = "block";
       dropzone.style.display = "none";
 
-      // AI分析処理を開始
-      startAiAnalysis(fileOrBlob, sampleType);
+      if (initialConditionText) {
+        userConditionInput.value = initialConditionText;
+      }
+
+      // ステップバー更新
+      updateSteps(1);
+
+      // 状態入力欄へスムーズにスクロール & フォーカス
+      userConditionInput.focus();
     };
     reader.readAsDataURL(fileOrBlob);
   }
 
-  // 4. AI分析リクエストとアニメーション (スライド P.9 演出)
-  async function startAiAnalysis(fileOrBlob, sampleType = "") {
+  // 4. 「AIで分析・出品情報を生成する」ボタンクリック時の処理
+  btnStartAi.addEventListener("click", () => {
+    if (!currentSelectedFile) {
+      alert("商品画像を選択してください。");
+      return;
+    }
+
+    const conditionText = userConditionInput.value.trim();
+    startAiAnalysis(currentSelectedFile, conditionText);
+  });
+
+  // 5. AI分析リクエストとアニメーション (スライド P.9 演出)
+  async function startAiAnalysis(fileOrBlob, conditionText = "") {
     // UIを分析中状態へ
     analyzingOverlay.style.display = "block";
     aiResultHero.style.display = "none";
     formCard.style.display = "none";
+
+    updateSteps(2);
 
     checkState.classList.remove("done");
     checkPrice.classList.remove("done");
@@ -123,8 +184,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formData = new FormData();
     formData.append("image", fileOrBlob, "product.jpg");
-    if (sampleType) {
-      formData.append("hint", sampleType);
+    if (conditionText) {
+      formData.append("user_condition", conditionText);
+      formData.append("hint", conditionText);
     }
 
     try {
@@ -149,14 +211,26 @@ document.addEventListener("DOMContentLoaded", () => {
       analyzingOverlay.style.display = "none";
 
       if (res.success && res.data) {
+        updateSteps(3);
         populateAiResults(res.data);
       } else {
         alert("AI分析中にエラーが発生しました: " + (res.error || "通信エラー"));
+        updateSteps(1);
       }
     } catch (err) {
       console.error(err);
       analyzingOverlay.style.display = "none";
+      updateSteps(1);
       alert("サーバーとの通信に失敗しました。PHPサーバーが稼働しているかご確認ください。");
+    }
+  }
+
+  // ステップインジケーター更新ヘルパー
+  function updateSteps(step) {
+    if (stepIndicator1 && stepIndicator2 && stepIndicator3) {
+      stepIndicator1.classList.toggle("active", step >= 1);
+      stepIndicator2.classList.toggle("active", step >= 2);
+      stepIndicator3.classList.toggle("active", step >= 3);
     }
   }
 
@@ -270,12 +344,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function resetForm() {
+    currentSelectedFile = null;
+    if (userConditionInput) {
+      userConditionInput.value = "";
+    }
     previewContainer.style.display = "none";
     dropzone.style.display = "block";
     analyzingOverlay.style.display = "none";
     aiResultHero.style.display = "none";
     formCard.style.display = "none";
     listingForm.reset();
+    updateSteps(1);
   }
 
   // テスト用サンプル画像 Blob 生成ヘルパー (手元に画像ファイルがなくても即テスト可能)

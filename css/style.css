@@ -284,11 +284,34 @@ body {
   color: var(--primary);
 }
 
-/* プレビュー表示エリア */
+/* プレビュー & 商品状態入力表示エリア */
 .preview-container {
   display: none;
-  margin-top: 20px;
+  margin-top: 16px;
+}
+
+.preview-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+@media (max-width: 640px) {
+  .preview-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.preview-image-side {
+  flex: 0 0 200px;
   text-align: center;
+}
+
+@media (max-width: 640px) {
+  .preview-image-side {
+    flex: none;
+  }
 }
 
 .preview-image-wrapper {
@@ -298,12 +321,14 @@ body {
 }
 
 .preview-img {
-  max-width: 260px;
-  max-height: 240px;
+  width: 100%;
+  max-width: 200px;
+  height: 200px;
   object-fit: cover;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 2px solid #e2e8f0;
+  background: #f8fafc;
 }
 
 .btn-reselect {
@@ -321,6 +346,150 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease;
+}
+
+.btn-reselect:hover {
+  transform: scale(1.1);
+}
+
+.btn-change-photo {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-change-photo:hover {
+  background: #f1f5f9;
+  color: var(--text-main);
+  border-color: #94a3b8;
+}
+
+/* 状態入力エリア */
+.preview-condition-side {
+  flex: 1;
+  min-width: 0;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+}
+
+.condition-input-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.condition-badge-step {
+  font-size: 11px;
+  font-weight: 700;
+  background: #ede9fe;
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.condition-input-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.condition-input-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.quick-condition-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.quick-chip-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.chip-btn {
+  background: white;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip-btn:hover {
+  background: var(--primary-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.condition-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-main);
+  background: white;
+  resize: vertical;
+  min-height: 72px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.condition-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.btn-start-ai {
+  background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-start-ai:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.35);
+}
+
+.btn-start-ai:active {
+  transform: translateY(0);
 }
 
 /* AI分析中カード (スライド P.9 の演出) */

@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 try {
     $tempFilePath = null;
     $mimeType = null;
-    $hint = $_POST['hint'] ?? '';
+    $hint = trim($_POST['user_condition'] ?? $_POST['hint'] ?? '');
 
     // 1. ファイルアップロード経由の場合
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
